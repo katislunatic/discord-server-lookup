@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Discord Invite Info</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
+
+  body {
+    font-family: 'Inter', Arial, sans-serif;
+    background: #18191c;
+    color: #e4e6eb;
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  .container {
+    background: #242526;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    max-width: 600px;
+    width: 100%;
+    padding: 2rem 2.5rem;
+    margin: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  h1 {
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+    font-size: 1.8rem;
+    text-align: center;
+    color: #7289da;
+  }
+
+  .input-group {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  input[type="text"] {
+    flex-grow: 1;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border: none;
+    font-size: 1rem;
+    background: #3a3b3c;
+    color: #e4e6eb;
+    transition: background 0.3s;
+  }
+  input[type="text"]:focus {
+    outline: none;
+    background: #4a4b4c;
+  }
+
+  button {
+    background: #5865f2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0 1.5rem;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.3s;
+    box-shadow: 0 4px 10px rgba(88, 101, 242, 0.6);
+  }
+  button:hover {
+    background: #4752c4;
+  }
+  button:active {
+    background: #3a3f8c;
+  }
+
+  #result {
+    margin-top: 1rem;
+    flex-grow: 1;
+  }
+
+  .server-info {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  img.icon {
+    width: 128px;
+    height: 128px;
+    border-radius: 20px;
+    background: #2c2f33;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    flex-shrink: 0;
+  }
+
+  .details {
+    flex-grow: 1;
+  }
+
+  .details p {
+    margin: 8px 0;
+    line-height: 1.4;
+  }
+
+  .details strong {
+    color: #b9bbbe;
+    font-weight: 600;
+  }
+
+  .green {
+    color: #43b581;
+    font-weight: 600;
+  }
+
+  .banner-img {
+    width: 100%;
+    border-radius: 12px;
+    margin-top: 1.5rem;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+    object-fit: cover;
+  }
+
+  hr {
+    border: none;
+    border-top: 1px solid #333;
+    margin: 1rem 0;
+  }
+
+  /* Error message styling */
+  .error {
+    color: #f04747;
+    font-weight: 600;
+    text-align: center;
+  }
+
+  /* Footer styling */
+  footer.footer {
+    text-align: center;
+    padding: 1rem 0;
+    font-size: 0.9rem;
+    color: #7289da;
+    user-select: none;
+  }
+
+  footer.footer a {
+    color: #7289da;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  footer.footer a:hover,
+  footer.footer a:focus {
+    text-decoration: underline;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 480px) {
+    .server-info {
+      flex-direction: column;
+      align-items: center;
+    }
+    .details {
+      text-align: center;
+    }
+    input[type="text"], button {
+      font-size: 0.9rem;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Discord Invite Info</h1>
+    <div class="input-group">
+      <input type="text" id="inviteInput" placeholder="Enter Discord invite code" autocomplete="off" />
+      <button onclick="fetchInvite()">Fetch Info</button>
+    </div>
+    <div id="result"></div>
+  </div>
+
+  <footer class="footer">
+    <a href="https://discord.com/users/1252981295454224390" target="_blank" rel="noopener noreferrer" title="Made by katislunatic">
+      Made by katislunatic
+    </a>
+  </footer>
+
+<script>
+  async function fetchInvite() {
+    const inviteCode = document.getElementById('inviteInput').value.trim();
+    const result = document.getElementById('result');
+    result.innerHTML = '<p style="text-align:center; color:#999;">Loading...</p>';
+
+    if (!inviteCode) {
+      result.innerHTML = `<p class="error">Please enter an invite code.</p>`;
+      return;
+    }
+
+    try {
+      const res = await fetch(`https://discord.com/api/invites/${inviteCode}?with_counts=true`);
+
+      if (!res.ok) throw new Error('Invite not found or invalid.');
+
+      const data = await res.json();
+      const guild = data.guild;
+
+      const iconUrl = guild.icon
+        ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=128`
+        : '';
+
+      const bannerUrl = guild.banner
+        ? `https://cdn.discordapp.com/banners/${guild.id}/${guild.banner}.png?size=512`
+        : '';
+
+      const expiresAt = data.expires_at
+        ? new Date(data.expires_at).toLocaleString()
+        : 'No expiration';
+
+      const creationDate = guild.created_at
+        ? new Date(guild.created_at).toLocaleDateString()
+        : 'Unknown';
+
+      const vanityUrl = data.code || (guild.vanity_url_code || null);
+
+      const verificationLevels = [
+        'None',
+        'Low',
+        'Medium',
+        'High',
+        'Very High'
+      ];
+      const verificationLevel = verificationLevels[guild.verification_level] || 'Unknown';
+
+      const features = guild.features && guild.features.length > 0
+        ? guild.features.join(', ')
+        : 'None';
+
+      const boostTier = guild.premium_tier > 0 ? `Tier ${guild.premium_tier}` : 'None';
+      const boostCount = guild.premium_subscription_count || 0;
+
+      const maxMembers = guild.max_members || 'Unlimited';
+      const maxPresences = guild.max_presences || 'Unlimited';
+
+      result.innerHTML = `
+        <div class="server-info">
+          <img class="icon" src="${iconUrl}" alt="Server Icon" />
+          <div class="details">
+            <p><strong>Server name:</strong> <span class="green">${guild.name}</span></p>
+            <p><strong>Member count:</strong> <span class="green">${data.approximate_member_count}</span></p>
+            <p><strong>Online users:</strong> <span class="green">${data.approximate_presence_count}</span></p>
+            <p><strong>Description:</strong><br>${guild.description || 'No description'}</p>
+            <p><strong>NSFW:</strong> <span class="green">${guild.nsfw_level === 0 ? 'No' : 'Yes'}</span></p>
+            <p><strong>Invite expiration:</strong> <span class="green">${expiresAt}</span></p>
+            <hr />
+            <p><strong>Server created on:</strong> <span class="green">${creationDate}</span></p>
+            ${vanityUrl ? `<p><strong>Vanity URL:</strong> <a href="https://discord.gg/${vanityUrl}" target="_blank" rel="noopener noreferrer" class="green">discord.gg/${vanityUrl}</a></p>` : ''}
+            <p><strong>Verification Level:</strong> <span class="green">${verificationLevel}</span></p>
+            <p><strong>Server Features:</strong> <span class="green">${features}</span></p>
+            <p><strong>Boost Tier:</strong> <span class="green">${boostTier}</span></p>
+            <p><strong>Boost Count:</strong> <span class="green">${boostCount}</span></p>
+            <p><strong>Max Members:</strong> <span class="green">${maxMembers}</span></p>
+            <p><strong>Max Presences:</strong> <span class="green">${maxPresences}</span></p>
+          </div>
+        </div>
+      `;
+
+      if (bannerUrl) {
+        const bannerImg = document.createElement('img');
+        bannerImg.src = bannerUrl;
+        bannerImg.alt = 'Server Banner';
+        bannerImg.className = 'banner-img';
+        result.appendChild(bannerImg);
+      }
+    } catch (error) {
+      result.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+    }
+  }
+</script>
+</body>
+</html>
