@@ -1,282 +1,444 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Discord Invite Info</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap');
 
-  body {
+  :root{
+    --bg:#18191c;
+    --card:#242526;
+    --muted:#b9bbbe;
+    --accent:#7289da;
+    --positive:#43b581;
+    --danger:#f04747;
+    --panel:#3a3b3c;
+  }
+
+  html,body{
+    height:100%;
+    margin:0;
     font-family: 'Inter', Arial, sans-serif;
-    background: #18191c;
-    color: #e4e6eb;
-    margin: 0;
-    padding: 2rem;
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+    background:var(--bg);
+    color:#e4e6eb;
+  }
+
+  .page {
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+    padding:2rem;
+    gap:1rem;
   }
 
   .container {
-    background: #242526;
-    border-radius: 16px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-    max-width: 600px;
-    width: 100%;
-    padding: 2rem 2.5rem;
-    margin: auto;
-    flex-grow: 1;
-    display: flex;
-    flex-direction: column;
+    background:var(--card);
+    border-radius:16px;
+    box-shadow:0 8px 28px rgba(0,0,0,0.5);
+    max-width:900px;
+    width:100%;
+    margin:0 auto;
+    padding:1.75rem;
+    display:flex;
+    flex-direction:column;
+    gap:1rem;
+    box-sizing:border-box;
   }
 
-  h1 {
-    margin-bottom: 1.5rem;
-    font-weight: 600;
-    font-size: 1.8rem;
-    text-align: center;
-    color: #7289da;
+  h1{
+    margin:0;
+    text-align:center;
+    color:var(--accent);
+    font-size:1.6rem;
+    font-weight:600;
   }
 
-  .input-group {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
+  .input-row{
+    display:flex;
+    gap:0.75rem;
+    align-items:center;
+    margin-top:.25rem;
   }
-
-  input[type="text"] {
-    flex-grow: 1;
-    padding: 0.75rem 1rem;
-    border-radius: 8px;
-    border: none;
-    font-size: 1rem;
-    background: #3a3b3c;
-    color: #e4e6eb;
-    transition: background 0.3s;
-  }
-  input[type="text"]:focus {
+  input[type="text"]{
+    flex:1;
+    padding:0.75rem 1rem;
+    border-radius:10px;
+    border:0;
+    background:var(--panel);
+    color:inherit;
+    font-size:1rem;
     outline: none;
-    background: #4a4b4c;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);
   }
 
-  button {
-    background: #5865f2;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 0 1.5rem;
-    font-weight: 600;
-    font-size: 1rem;
-    cursor: pointer;
-    transition: background 0.3s;
-    box-shadow: 0 4px 10px rgba(88, 101, 242, 0.6);
+  button{
+    background:linear-gradient(180deg,var(--accent), #5560d9);
+    color:white;
+    border:0;
+    padding:0.7rem 1rem;
+    border-radius:10px;
+    font-weight:700;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(88,101,242,0.18);
   }
-  button:hover {
-    background: #4752c4;
-  }
-  button:active {
-    background: #3a3f8c;
+  button:active{ transform: translateY(1px); }
+
+  #result{
+    margin-top:0.5rem;
   }
 
-  #result {
-    margin-top: 1rem;
-    flex-grow: 1;
+  .server-info{
+    display:flex;
+    gap:20px;
+    align-items:flex-start;
   }
 
-  .server-info {
-    display: flex;
-    gap: 24px;
-    align-items: flex-start;
+  .icon-wrap{
+    width:140px;
+    min-width:140px;
+    display:flex;
+    flex-direction:column;
+    gap:.5rem;
+    align-items:center;
   }
 
-  img.icon {
-    width: 128px;
-    height: 128px;
-    border-radius: 20px;
-    background: #2c2f33;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    flex-shrink: 0;
+  img.icon{
+    width:128px;
+    height:128px;
+    border-radius:18px;
+    background:#2c2f33;
+    object-fit:cover;
+    box-shadow:0 6px 18px rgba(0,0,0,0.5);
   }
 
-  .details {
-    flex-grow: 1;
+  .details{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    gap:.5rem;
   }
 
-  .details p {
-    margin: 8px 0;
-    line-height: 1.4;
+  .row{
+    display:flex;
+    gap:.5rem;
+    align-items:center;
+    flex-wrap:wrap;
   }
 
-  .details strong {
-    color: #b9bbbe;
-    font-weight: 600;
+  .label{
+    color:var(--muted);
+    font-weight:600;
+    min-width:160px;
+  }
+  .value{
+    color:var(--positive);
+    font-weight:700;
+    word-break:break-word;
   }
 
-  .green {
-    color: #43b581;
-    font-weight: 600;
+  .value.link a{
+    color:var(--positive);
+    text-decoration:none;
+    font-weight:700;
+  }
+  .value.link a:hover{ text-decoration:underline; }
+
+  .desc{
+    color:#dcdfe2;
+    line-height:1.4;
+    white-space:pre-wrap;
   }
 
-  .banner-img {
-    width: 100%;
-    border-radius: 12px;
-    margin-top: 1.5rem;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-    object-fit: cover;
+  .meta-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:12px;
+    margin-top:12px;
   }
 
-  hr {
-    border: none;
-    border-top: 1px solid #333;
-    margin: 1rem 0;
+  .card {
+    background:rgba(0,0,0,0.15);
+    padding:12px;
+    border-radius:10px;
+    border:1px solid rgba(255,255,255,0.02);
   }
 
-  /* Error message styling */
-  .error {
-    color: #f04747;
-    font-weight: 600;
-    text-align: center;
+  .banner-img{
+    width:100%;
+    border-radius:12px;
+    margin-top:12px;
+    object-fit:cover;
+    box-shadow:0 10px 30px rgba(0,0,0,0.6);
   }
 
-  /* Footer styling */
-  footer.footer {
-    text-align: center;
-    padding: 1rem 0;
-    font-size: 0.9rem;
-    color: #7289da;
-    user-select: none;
+  hr.sep{
+    border:0;
+    height:1px;
+    background:#2f3136;
+    margin:12px 0;
   }
 
-  footer.footer a {
-    color: #7289da;
-    text-decoration: none;
-    font-weight: 600;
-  }
-  footer.footer a:hover,
-  footer.footer a:focus {
-    text-decoration: underline;
+  .error{
+    color:var(--danger);
+    font-weight:700;
+    text-align:center;
   }
 
-  /* Responsive adjustments */
-  @media (max-width: 480px) {
-    .server-info {
-      flex-direction: column;
-      align-items: center;
-    }
-    .details {
-      text-align: center;
-    }
-    input[type="text"], button {
-      font-size: 0.9rem;
-    }
+  footer.footer{
+    text-align:center;
+    margin-top:1rem;
+    color:var(--accent);
+    user-select:none;
+  }
+  footer.footer a{
+    color:var(--accent);
+    text-decoration:none;
+    font-weight:700;
+  }
+  footer.footer a:hover{ text-decoration:underline; }
+
+  /* small text */
+  .muted {
+    color:#9aa0a6;
+    font-size:0.9rem;
+  }
+
+  /* responsive */
+  @media (max-width:720px){
+    .server-info{ flex-direction:column; align-items:center; }
+    .label{ min-width:120px; }
+    .container{ padding:1rem; }
   }
 </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Discord Invite Info</h1>
-    <div class="input-group">
-      <input type="text" id="inviteInput" placeholder="Enter Discord invite code" autocomplete="off" />
-      <button onclick="fetchInvite()">Fetch Info</button>
+  <div class="page">
+    <div class="container">
+      <h1>Discord Invite Info</h1>
+
+      <div class="input-row">
+        <input id="inviteInput" type="text" placeholder="Enter invite code (eg. abcDef) or discord.gg/abcDef" autocomplete="off" />
+        <button id="fetchBtn">Fetch Info</button>
+      </div>
+
+      <div id="result" aria-live="polite"></div>
     </div>
-    <div id="result"></div>
+
+    <footer class="footer">
+      <a href="https://discord.com/users/1252981295454224390" target="_blank" rel="noopener noreferrer" title="Made by katislunatic">
+        Made by katislunatic
+      </a>
+    </footer>
   </div>
 
-  <footer class="footer">
-    <a href="https://discord.com/users/1252981295454224390" target="_blank" rel="noopener noreferrer" title="Made by katislunatic">
-      Made by katislunatic
-    </a>
-  </footer>
-
 <script>
-  async function fetchInvite() {
-    const inviteCode = document.getElementById('inviteInput').value.trim();
-    const result = document.getElementById('result');
-    result.innerHTML = '<p style="text-align:center; color:#999;">Loading...</p>';
+  // helper: safely get nested prop
+  const safe = (obj, key, fallback = null) => (obj && obj[key] !== undefined && obj[key] !== null) ? obj[key] : fallback;
 
-    if (!inviteCode) {
-      result.innerHTML = `<p class="error">Please enter an invite code.</p>`;
+  // decode explicit content filter
+  const explicitFilterMap = {
+    0: 'Off',
+    1: 'No Role',
+    2: 'Everyone'
+  };
+
+  // decode system_channel_flags bits to human-readable
+  const SYSTEM_CHANNEL_FLAGS = [
+    { bit: 1, name: 'Suppress Join Notifications' },
+    { bit: 2, name: 'Suppress Premium (Boost) Notifications' },
+    { bit: 4, name: 'Suppress Guild Reminder Notifications' },
+    { bit: 8, name: 'Allow Join Notification Replies' },
+    { bit: 32, name: 'Hide Role Subscription Purchase Reply Buttons' }
+    // NOTE: additional flags may exist in the API in the future.
+  ];
+
+  // try to convert a guild snowflake id to creation date
+  function snowflakeToDate(snowflake){
+    try{
+      // BigInt shift to get timestamp portion:
+      const id = BigInt(snowflake);
+      const discordEpoch = 1420070400000n; // Jan 1, 2015
+      const timestamp = Number((id >> 22n) + discordEpoch);
+      return new Date(timestamp).toLocaleString();
+    }catch(e){
+      return 'Unknown';
+    }
+  }
+
+  // build channel link (opens in browser when logged in) — format: https://discord.com/channels/<guildId>/<channelId>
+  function channelLink(guildId, channelId){
+    if(!channelId) return 'N/A';
+    return `https://discord.com/channels/${guildId}/${channelId}`;
+  }
+
+  document.getElementById('fetchBtn').addEventListener('click', fetchInvite);
+  document.getElementById('inviteInput').addEventListener('keydown', (e)=>{
+    if(e.key === 'Enter') fetchInvite();
+  });
+
+  async function fetchInvite(){
+    const raw = document.getElementById('inviteInput').value.trim();
+    const result = document.getElementById('result');
+    result.innerHTML = `<p class="muted" style="text-align:center">Loading…</p>`;
+
+    if(!raw){
+      result.innerHTML = `<p class="error">Please enter an invite code or URL.</p>`;
       return;
     }
 
-    try {
-      const res = await fetch(`https://discord.com/api/invites/${inviteCode}?with_counts=true`);
+    // normalize invite code from full URL if user pasted a URL
+    const code = raw.replace(/^(?:https?:\/\/)?(?:www\.)?(?:discord\.gg|discordapp\.com\/invite)\/?/i, '');
 
-      if (!res.ok) throw new Error('Invite not found or invalid.');
-
+    try{
+      const res = await fetch(`https://discord.com/api/invites/${encodeURIComponent(code)}?with_counts=true`);
+      if(!res.ok) {
+        throw new Error(`Invite not found or invalid (status ${res.status}).`);
+      }
       const data = await res.json();
-      const guild = data.guild;
+      const guild = safe(data, 'guild', {});
+      // Build image URLs (fall back to blank image if missing)
+      const iconUrl = guild.icon ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=256` : '';
+      const bannerUrl = guild.banner ? `https://cdn.discordapp.com/banners/${guild.id}/${guild.banner}.png?size=1024` : '';
 
-      const iconUrl = guild.icon
-        ? `https://cdn.discordapp.com/icons/${guild.id}/${guild.icon}.png?size=128`
-        : '';
+      const expiresAt = data.expires_at ? new Date(data.expires_at).toLocaleString() : 'No expiration';
 
-      const bannerUrl = guild.banner
-        ? `https://cdn.discordapp.com/banners/${guild.id}/${guild.banner}.png?size=512`
-        : '';
+      // Creation from snowflake (most reliable)
+      const creationDate = guild.id ? snowflakeToDate(guild.id) : 'Unknown';
 
-      const expiresAt = data.expires_at
-        ? new Date(data.expires_at).toLocaleString()
-        : 'No expiration';
+      const vanityUrl = data.code || safe(guild, 'vanity_url_code', null) || null;
 
-      const creationDate = guild.created_at
-        ? new Date(guild.created_at).toLocaleDateString()
-        : 'Unknown';
+      // verification mapping (safe if missing)
+      const verificationLevels = [ 'None', 'Low', 'Medium', 'High', 'Very High' ];
+      const verificationLevel = (guild.verification_level !== undefined && verificationLevels[guild.verification_level]) ? verificationLevels[guild.verification_level] : 'Unknown';
 
-      const vanityUrl = data.code || (guild.vanity_url_code || null);
+      const features = (guild.features && guild.features.length) ? guild.features.join(', ') : 'None';
 
-      const verificationLevels = [
-        'None',
-        'Low',
-        'Medium',
-        'High',
-        'Very High'
-      ];
-      const verificationLevel = verificationLevels[guild.verification_level] || 'Unknown';
-
-      const features = guild.features && guild.features.length > 0
-        ? guild.features.join(', ')
-        : 'None';
-
-      const boostTier = guild.premium_tier > 0 ? `Tier ${guild.premium_tier}` : 'None';
+      const boostTier = guild.premium_tier ? `Tier ${guild.premium_tier}` : 'None';
       const boostCount = guild.premium_subscription_count || 0;
 
-      const maxMembers = guild.max_members || 'Unlimited';
-      const maxPresences = guild.max_presences || 'Unlimited';
+      const maxMembers = safe(guild, 'max_members', 'Unlimited');
+      const maxPresences = safe(guild, 'max_presences', 'Unlimited');
 
+      // Additional fields requested
+      const ownerId = safe(guild, 'owner_id', null) || safe(data, 'inviter', null) && safe(data.inviter, 'id', null);
+      const publicUpdatesChannelId = safe(guild, 'public_updates_channel_id', null);
+      const rulesChannelId = safe(guild, 'rules_channel_id', null);
+      const systemChannelId = safe(guild, 'system_channel_id', null);
+      const preferredLocale = safe(guild, 'preferred_locale', 'Unknown') || safe(guild, 'preferred_locale', 'Unknown');
+      const mfaLevel = (guild.mfa_level !== undefined) ? guild.mfa_level : 'Unknown';
+      const explicitFilter = (guild.explicit_content_filter !== undefined) ? explicitFilterMap[guild.explicit_content_filter] || guild.explicit_content_filter : 'Unknown';
+      const premiumProgressBar = (guild.premium_progress_bar_enabled !== undefined) ? guild.premium_progress_bar_enabled : 'Unknown';
+      const approxStageCount = (data.approximate_stage_instance_count !== undefined) ? data.approximate_stage_instance_count : (data.approximate_stage_instance_count === 0 ? 0 : 'N/A');
+      const widgetEnabled = (guild.widget_enabled !== undefined) ? guild.widget_enabled : 'Unknown';
+      const widgetChannelId = safe(guild, 'widget_channel_id', null);
+      const maxVideoUsers = (guild.max_video_channel_users !== undefined) ? guild.max_video_channel_users : 'Unknown';
+      const isLarge = (guild.large !== undefined) ? guild.large : (guild.approximate_member_count ? guild.approximate_member_count >= 250 : 'Unknown');
+      const systemChannelFlagsRaw = (guild.system_channel_flags !== undefined) ? guild.system_channel_flags : 0;
+
+      // decode system channel flags to list of names
+      const decodedSystemFlags = [];
+      SYSTEM_CHANNEL_FLAGS.forEach(f=>{
+        if((systemChannelFlagsRaw & f.bit) === f.bit){
+          decodedSystemFlags.push(f.name);
+        }
+      });
+      const systemFlagsDisplay = decodedSystemFlags.length ? decodedSystemFlags.join(', ') : (systemChannelFlagsRaw ? `Unknown flags (${systemChannelFlagsRaw})` : 'None');
+
+      // Build UI
       result.innerHTML = `
-        <div class="server-info">
-          <img class="icon" src="${iconUrl}" alt="Server Icon" />
+        <div class="server-info card">
+          <div class="icon-wrap">
+            <img class="icon" src="${iconUrl || 'https://via.placeholder.com/128?text=No+Icon'}" alt="Server Icon" />
+            <div class="muted">${guild.name ? 'ID: ' + guild.id : ''}</div>
+          </div>
+
           <div class="details">
-            <p><strong>Server name:</strong> <span class="green">${guild.name}</span></p>
-            <p><strong>Member count:</strong> <span class="green">${data.approximate_member_count}</span></p>
-            <p><strong>Online users:</strong> <span class="green">${data.approximate_presence_count}</span></p>
-            <p><strong>Description:</strong><br>${guild.description || 'No description'}</p>
-            <p><strong>NSFW:</strong> <span class="green">${guild.nsfw_level === 0 ? 'No' : 'Yes'}</span></p>
-            <p><strong>Invite expiration:</strong> <span class="green">${expiresAt}</span></p>
-            <hr />
-            <p><strong>Server created on:</strong> <span class="green">${creationDate}</span></p>
-            ${vanityUrl ? `<p><strong>Vanity URL:</strong> <a href="https://discord.gg/${vanityUrl}" target="_blank" rel="noopener noreferrer" class="green">discord.gg/${vanityUrl}</a></p>` : ''}
-            <p><strong>Verification Level:</strong> <span class="green">${verificationLevel}</span></p>
-            <p><strong>Server Features:</strong> <span class="green">${features}</span></p>
-            <p><strong>Boost Tier:</strong> <span class="green">${boostTier}</span></p>
-            <p><strong>Boost Count:</strong> <span class="green">${boostCount}</span></p>
-            <p><strong>Max Members:</strong> <span class="green">${maxMembers}</span></p>
-            <p><strong>Max Presences:</strong> <span class="green">${maxPresences}</span></p>
+            <div class="row">
+              <div class="label">Server name</div>
+              <div class="value">${guild.name || 'Unknown'}</div>
+            </div>
+
+            <div class="row">
+              <div class="label">Description</div>
+              <div class="desc">${guild.description || 'No description'}</div>
+            </div>
+
+            <div class="meta-grid">
+              <div class="card">
+                <div class="row"><div class="label">Member count</div><div class="value">${safe(data, 'approximate_member_count', 'N/A')}</div></div>
+                <div class="row"><div class="label">Online users</div><div class="value">${safe(data, 'approximate_presence_count', 'N/A')}</div></div>
+                <div class="row"><div class="label">Stage instances</div><div class="value">${approxStageCount}</div></div>
+                <div class="row"><div class="label">Server created</div><div class="value">${creationDate}</div></div>
+              </div>
+
+              <div class="card">
+                <div class="row"><div class="label">Vanity URL</div>
+                  <div class="value link">${vanityUrl ? `<a href="https://discord.gg/${vanityUrl}" target="_blank" rel="noopener noreferrer">discord.gg/${vanityUrl}</a>` : 'None'}</div>
+                </div>
+
+                <div class="row"><div class="label">Verification level</div><div class="value">${verificationLevel}</div></div>
+
+                <div class="row"><div class="label">Features</div><div class="value muted" style="color:var(--muted)">${features}</div></div>
+
+                <div class="row"><div class="label">Boost tier / count</div><div class="value">${boostTier} • ${boostCount}</div></div>
+              </div>
+
+              <div class="card">
+                <div class="row"><div class="label">Max members</div><div class="value">${maxMembers}</div></div>
+                <div class="row"><div class="label">Max presences</div><div class="value">${maxPresences}</div></div>
+                <div class="row"><div class="label">Max video users</div><div class="value">${maxVideoUsers}</div></div>
+                <div class="row"><div class="label">Large server</div><div class="value">${isLarge}</div></div>
+              </div>
+
+              <div class="card">
+                <div class="row"><div class="label">Owner</div>
+                  <div class="value link">${ownerId ? `<a href="https://discord.com/users/${ownerId}" target="_blank" rel="noopener noreferrer">${ownerId}</a>` : 'Unknown'}</div>
+                </div>
+
+                <div class="row"><div class="label">Public updates channel</div>
+                  <div class="value link">${publicUpdatesChannelId ? `<a href="${channelLink(guild.id, publicUpdatesChannelId)}" target="_blank" rel="noopener noreferrer">${publicUpdatesChannelId}</a>` : 'None'}</div>
+                </div>
+
+                <div class="row"><div class="label">Rules channel</div>
+                  <div class="value link">${rulesChannelId ? `<a href="${channelLink(guild.id, rulesChannelId)}" target="_blank" rel="noopener noreferrer">${rulesChannelId}</a>` : 'None'}</div>
+                </div>
+
+                <div class="row"><div class="label">System channel</div>
+                  <div class="value link">${systemChannelId ? `<a href="${channelLink(guild.id, systemChannelId)}" target="_blank" rel="noopener noreferrer">${systemChannelId}</a>` : 'None'}</div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="row"><div class="label">Preferred locale</div><div class="value">${preferredLocale}</div></div>
+                <div class="row"><div class="label">MFA level</div><div class="value">${mfaLevel}</div></div>
+                <div class="row"><div class="label">Explicit content filter</div><div class="value">${explicitFilter}</div></div>
+                <div class="row"><div class="label">Premium progress bar</div><div class="value">${premiumProgressBar}</div></div>
+              </div>
+
+              <div class="card">
+                <div class="row"><div class="label">Widget enabled</div><div class="value">${widgetEnabled}</div></div>
+                <div class="row"><div class="label">Widget channel</div><div class="value link">${widgetChannelId ? `<a href="${channelLink(guild.id, widgetChannelId)}" target="_blank" rel="noopener noreferrer">${widgetChannelId}</a>` : 'None'}</div></div>
+                <div class="row"><div class="label">System channel flags</div><div class="value muted">${systemFlagsDisplay} ${systemChannelFlagsRaw ? `(${systemChannelFlagsRaw})` : ''}</div></div>
+                <div class="row"><div class="label">Invite expiration</div><div class="value">${expiresAt}</div></div>
+              </div>
+            </div>
           </div>
         </div>
       `;
 
-      if (bannerUrl) {
-        const bannerImg = document.createElement('img');
-        bannerImg.src = bannerUrl;
-        bannerImg.alt = 'Server Banner';
-        bannerImg.className = 'banner-img';
-        result.appendChild(bannerImg);
+      // banner
+      if(bannerUrl){
+        const img = document.createElement('img');
+        img.src = bannerUrl;
+        img.alt = 'Server Banner';
+        img.className = 'banner-img';
+        result.appendChild(img);
       }
-    } catch (error) {
-      result.innerHTML = `<p class="error">Error: ${error.message}</p>`;
+
+    }catch(err){
+      result.innerHTML = `<p class="error">Error: ${err.message}</p>`;
     }
   }
 </script>
